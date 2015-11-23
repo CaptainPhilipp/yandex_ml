@@ -568,10 +568,6 @@ module YandexML
       event :end_is_kids do
         transitions from: :is_kids, to: :offer
       end
-
-      # after_all_transitions  do
-      #   puts "#{ aasm.from_state } -> #{ aasm.to_state } => #{ aasm.current_event }; #{ stack.inspect }"
-      # end
     end
 
     aasm.states.map(&:name).each do |state_name|
@@ -675,7 +671,8 @@ module YandexML
     end
 
     def underscore(string)
-      string.to_s.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').gsub(/([a-z\d])([A-Z])/,'\1_\2').tr("-", "_").downcase
+      @underscore_cache ||= {}
+      @underscore_cache[string] ||= string.to_s.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').gsub(/([a-z\d])([A-Z])/,'\1_\2').tr("-", "_").downcase
     end
   end
 end
