@@ -6,6 +6,7 @@ require "logger"
 require "postrank-uri"
 
 require "yandex_ml/version"
+require "yandex_ml/element"
 require "yandex_ml/category"
 require "yandex_ml/url"
 require "yandex_ml/currency"

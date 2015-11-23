@@ -1,8 +1,5 @@
 module YandexML
-  class Category
-    include ActiveModel::Validations
-    include Virtus.model
-
+  class Category < YandexML::Element
     attribute :id, String
     attribute :parentId, String
     attribute :name, String

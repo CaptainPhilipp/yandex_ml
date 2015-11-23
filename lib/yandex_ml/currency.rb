@@ -1,8 +1,5 @@
 module YandexML
-  class Currency
-    include ActiveModel::Validations
-    include Virtus.model
-
+  class Currency < YandexML::Element
     IDS = %w[RUR RUB USD BYR KZT EUR UAH]
 
     attribute :id

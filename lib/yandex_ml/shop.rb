@@ -1,8 +1,5 @@
 module YandexML
-  class Shop
-    include ActiveModel::Validations
-    include Virtus.model
-
+  class Shop < YandexML::Element
     validates :name, :company, :url, presence: true
 
     attribute :name, String

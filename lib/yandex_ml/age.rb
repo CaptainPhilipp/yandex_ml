@@ -1,8 +1,5 @@
 module YandexML
-  class Age
-    include ActiveModel::Validations
-    include Virtus.model
-
+  class Age < YandexML::Element
     attribute :unit, String
     attribute :value, String
 

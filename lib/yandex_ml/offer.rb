@@ -1,8 +1,5 @@
 module YandexML
-  class Offer
-    include ActiveModel::Validations
-    include Virtus.model
-
+  class Offer < YandexML::Element
     TYPES = %w[vendor.model book audiobook artist.title tour ticket event-ticket]
 
     attribute :id, String

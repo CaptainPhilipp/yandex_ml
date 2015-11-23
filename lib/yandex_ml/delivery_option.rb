@@ -1,10 +1,7 @@
 # https://yandex.ru/support/partnermarket/elements/delivery-options.xml
 
 module YandexML
-  class DeliveryOption
-    include ActiveModel::Validations
-    include Virtus.model
-
+  class DeliveryOption < YandexML::Element
     attribute :cost
     attribute :days
     attribute :order_before

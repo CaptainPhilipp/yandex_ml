@@ -1,8 +1,5 @@
 module YandexML
-  class Param
-    include ActiveModel::Validations
-    include Virtus.model
-
+  class Param < YandexML::Element
     attribute :name, String
     attribute :value, String
     attribute :unit, String
