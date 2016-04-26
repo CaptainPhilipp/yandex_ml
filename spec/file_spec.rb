@@ -6,7 +6,7 @@ describe YandexML::File do
     File.expand_path("files/yandex.xml", File.dirname(__FILE__)),
   ].each do |path|
     context "parse #{ path }" do
-      let(:file) { YandexML::File.new open(path), Logger.new(STDOUT).tap{|l| l.level = Logger::DEBUG } }
+      let(:file) { YandexML::File.new open(path), Logger.new(STDOUT).tap{|l| l.level = (ENV["DEBUG"] ? Logger::DEBUG : Logger::ERROR) } }
 
       it { expect{ file.lazy.take(500).each(&:attributes) }.to_not raise_error }
 
@@ -34,7 +34,7 @@ describe YandexML::File do
       "http://antoshkaspb.ru/yandexmarket/7ff682cd-d656-453a-9506-775350f39455.xml"
     ].each do |path|
       context "parse #{ path }" do
-        let(:file) { YandexML::File.new open(path), Logger.new(STDOUT).tap{|l| l.level = Logger::DEBUG }  }
+        let(:file) { YandexML::File.new open(path), Logger.new(STDOUT).tap{|l| l.level = (ENV["DEBUG"] ? Logger::DEBUG : Logger::ERROR) }  }
 
         it { expect{ file.lazy.take(1000).each(&:attributes) }.to_not raise_error }
       end
