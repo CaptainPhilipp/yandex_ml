@@ -2,12 +2,14 @@ require 'spec_helper'
 require 'open-uri'
 
 describe YandexML::File do
+  let(:logger) { Logger.new(STDOUT).tap{|l| l.level = (ENV["DEBUG"] ? Logger::DEBUG : Logger::ERROR) } }
+
   [File.expand_path("files/yandex.xml", File.dirname(__FILE__))].each do |path|
     context "parse #{ path }" do
-      let(:file) { YandexML::File.new open(path), Logger.new(STDOUT).tap{|l| l.level = (ENV["DEBUG"] ? Logger::DEBUG : Logger::ERROR) } }
+      let(:file) { YandexML::File.new(open(path), logger)  }
 
       it do
-        expect{ file.each(&:attributes) }.to_not raise_error
+        expect{ file.elements.each(&:attributes) }.to_not raise_error
         yml_shop = file.shop
         expect(yml_shop.categories.valid?).to eq(true)
         file.offers.each { |offer| expect{ yml_shop.categories.path_to(offer.category_id) }.to_not raise_error }
@@ -28,9 +30,9 @@ describe YandexML::File do
       "http://antoshkaspb.ru/yandexmarket/7ff682cd-d656-453a-9506-775350f39455.xml"
     ].each do |path|
       context "parse #{ path }" do
-        let(:file) { YandexML::File.new open(path), Logger.new(STDOUT).tap{|l| l.level = (ENV["DEBUG"] ? Logger::DEBUG : Logger::ERROR) }  }
+        let(:file) { YandexML::File.new(open(path), logger)  }
 
-        it { expect{ file.lazy.take(1000).each(&:attributes) }.to_not raise_error }
+        it { expect{ file.elements.take(1000).each(&:attributes) }.to_not raise_error }
       end
     end
   end

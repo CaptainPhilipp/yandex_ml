@@ -696,8 +696,8 @@ module YandexML
 
     attr_reader :states
 
-    def initialize(logger, &consumer)
-      @consumer = consumer
+    def initialize(logger, enumerator)
+      @enumerator = enumerator
       @logger = logger
     end
 
@@ -757,7 +757,7 @@ module YandexML
 
         case name
         when "shop"
-          @consumer.call self.current_element
+          @enumerator << self.current_element
           stack.pop
         when "currency"
           self.parent_element.currencies << self.current_element
@@ -769,7 +769,7 @@ module YandexML
           self.parent_element.delivery_options << self.current_element
           stack.pop
         when "offer"
-          @consumer.call self.current_element
+          @enumerator << self.current_element
           stack.pop
         end
 
