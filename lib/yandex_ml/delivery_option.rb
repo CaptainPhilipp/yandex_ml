@@ -1,5 +1,3 @@
-# https://yandex.ru/support/partnermarket/elements/delivery-options.xml
-
 module YandexML
   class DeliveryOption < YandexML::Element
     attribute :cost

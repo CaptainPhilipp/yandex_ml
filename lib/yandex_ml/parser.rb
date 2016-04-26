@@ -9,18 +9,23 @@ module YandexML
       state :name
       state :company
       state :url
+      state :platform
+      state :version
+      state :agency
+      state :email
       state :currencies
       state :currency
       state :categories
       state :category
       state :local_delivery_cost
+      state :delivery_options
+      state :option
       state :offers
       state :offer
       state :price
       state :currency_id
       state :category_id
       state :picture
-      state :delivery
       state :type_prefix
       state :vendor
       state :vendor_code
@@ -33,8 +38,9 @@ module YandexML
       state :series
       state :year
       state :isbn
-      state :volume
       state :part
+      state :volume
+      state :param
       state :language
       state :binding
       state :page_extent
@@ -42,6 +48,10 @@ module YandexML
       state :performed_by
       state :performance_type
       state :storage
+      state :store
+      state :pickup
+      state :delivery
+      state :oldprice
       state :format
       state :recording_length
       state :artist
@@ -66,6 +76,8 @@ module YandexML
       state :date
       state :is_premiere
       state :is_kids
+      state :sales_notes
+      state :barcode
 
       event :start_yml_catalog do
         transitions from: :root, to: :yml_catalog
@@ -101,6 +113,36 @@ module YandexML
         transitions from: :company, to: :shop
       end
 
+      event :start_store do
+        transitions from: :shop, to: :store
+        transitions from: :offer, to: :store
+      end
+
+      event :end_store do
+        transitions from: :store, to: :shop, guard: :in_shop?
+        transitions from: :store, to: :offer, guard: :in_offer?
+      end
+
+      event :start_pickup do
+        transitions from: :shop, to: :pickup
+        transitions from: :offer, to: :pickup
+      end
+
+      event :end_pickup do
+        transitions from: :pickup, to: :shop, guard: :in_shop?
+        transitions from: :pickup, to: :offer, guard: :in_offer?
+      end
+
+      event :start_delivery do
+        transitions from: :shop, to: :delivery
+        transitions from: :offer, to: :delivery
+      end
+
+      event :end_delivery do
+        transitions from: :delivery, to: :shop, guard: :in_shop?
+        transitions from: :delivery, to: :offer, guard: :in_offer?
+      end
+
       event :start_url do
         transitions from: :shop,  to: :url
         transitions from: :offer, to: :url
@@ -109,6 +151,70 @@ module YandexML
       event :end_url do
         transitions from: :url, to: :offer, guard: :in_offer?
         transitions from: :url, to: :shop,  guard: :in_shop?
+      end
+
+      event :start_platform do
+        transitions from: :shop, to: :platform
+      end
+
+      event :end_platform do
+        transitions from: :platform, to: :shop
+      end
+
+      event :start_oldprice do
+        transitions from: :offer, to: :oldprice
+      end
+
+      event :end_oldprice do
+        transitions from: :oldprice, to: :offer
+      end
+
+      event :start_version do
+        transitions from: :shop, to: :version
+      end
+
+      event :end_version do
+        transitions from: :version, to: :shop
+      end
+
+      event :start_agency do
+        transitions from: :shop, to: :agency
+      end
+
+      event :end_agency do
+        transitions from: :agency, to: :shop
+      end
+
+      event :start_email do
+        transitions from: :shop, to: :email
+      end
+
+      event :end_email do
+        transitions from: :email, to: :shop
+      end
+
+      event :start_barcode do
+        transitions from: :offer, to: :barcode
+      end
+
+      event :end_barcode do
+        transitions from: :barcode, to: :offer
+      end
+
+      event :start_volume do
+        transitions from: :offer, to: :volume
+      end
+
+      event :end_volume do
+        transitions from: :volume, to: :offer
+      end
+
+      event :start_param do
+        transitions from: :offer, to: :param
+      end
+
+      event :end_param do
+        transitions from: :param, to: :offer
       end
 
       event :start_currencies do
@@ -151,6 +257,24 @@ module YandexML
       event :end_local_delivery_cost do
         transitions from: :local_delivery_cost, to: :shop,  guard: :in_shop?
         transitions from: :local_delivery_cost, to: :offer, guard: :in_offer?
+      end
+
+      event :start_delivery_options do
+        transitions from: :shop,  to: :delivery_options
+        transitions from: :offer, to: :delivery_options
+      end
+
+      event :end_delivery_options do
+        transitions from: :delivery_options, to: :shop,  guard: :in_shop?
+        transitions from: :delivery_options, to: :offer, guard: :in_offer?
+      end
+
+      event :start_option do
+        transitions from: :delivery_options,  to: :option
+      end
+
+      event :end_option do
+        transitions from: :option, to: :delivery_options
       end
 
       event :start_offers do
@@ -201,12 +325,12 @@ module YandexML
         transitions from: :picture, to: :offer
       end
 
-      event :start_delivery do
-        transitions from: :offer, to: :delivery
+      event :start_sales_notes do
+        transitions from: :offer, to: :sales_notes
       end
 
-      event :end_delivery do
-        transitions from: :delivery, to: :offer
+      event :end_sales_notes do
+        transitions from: :sales_notes, to: :offer
       end
 
       event :start_type_prefix do
@@ -303,14 +427,6 @@ module YandexML
 
       event :end_isbn do
         transitions from: :isbn, to: :offer
-      end
-
-      event :start_volume do
-        transitions from: :offer, to: :volume
-      end
-
-      event :end_volume do
-        transitions from: :volume, to: :offer
       end
 
       event :start_part do
@@ -570,7 +686,9 @@ module YandexML
       end
     end
 
-    aasm.states.map(&:name).each do |state_name|
+    STATES = YandexML::Parser.aasm.states.map(&:name).map(&:to_s).to_set
+
+    STATES.each do |state_name|
       define_method "in_#{ state_name }?" do
         path[-2] == state_name
       end
@@ -583,65 +701,116 @@ module YandexML
       @logger = logger
     end
 
-    def start_element(name)
-      debug "> #{ name }"
+    def start_undefined!
+      @undefined = true
+    end
 
-      case name
-      when :shop
-        self.current_element = YandexML::Shop.new
-      when :currencies
-        # nothing
-      when :currency
-        self.current_element = YandexML::Currency.new
-      when :categories
-        # nothing
-      when :category
-        self.current_element = YandexML::Category.new
-      when :offers
-        # nothing
-      when :offer
-        self.current_element = YandexML::Offer.new
+    def end_undefined!
+      @undefined = false
+    end
+
+    def undefined?
+      @undefined == true
+    end
+
+    def start_element(event_name)
+      debug "> #{ event_name }"
+      name = underscore event_name
+
+      unless undefined?
+        case name
+        when "shop"
+          self.current_element = YandexML::Shop.new
+        when "currency"
+          self.current_element = YandexML::Currency.new
+        when "category"
+          self.current_element = YandexML::Category.new
+        when "offer"
+          self.current_element = YandexML::Offer.new
+        when "param"
+          self.current_element = YandexML::Param.new
+        when "option"
+          self.current_element = YandexML::DeliveryOption.new if delivery_options?
+        end
+
+        if STATES.include?(name)
+          send "start_#{ name }"
+        else
+          start_undefined!
+        end
       end
 
       path.push name
-      send underscore("start_#{ name }")
+    rescue
+      require 'pry'
+      binding.pry
     end
 
-    def end_element(name)
-      debug "< #{ name }"
+    def end_element(event_name)
+      debug "< #{ event_name }"
 
-      case name
-      when :shop
-        @consumer.call self.current_element
-      when :currencies
-        # nothing
-      when :currency
-        self.parent_element.currencies << self.current_element
-        stack.pop
-      when :categories
-        # nothing
-      when :category
-        self.parent_element.categories << self.current_element
-        stack.pop
-      when :offers
-        # nothing
-      when :offer
-        @consumer.call self.current_element
-        stack.pop
+      if undefined?
+        path.pop
+        end_undefined! if path.all? { |n| STATES.include? n }
+      else
+        name = underscore event_name
+
+        case name
+        when "shop"
+          @consumer.call self.current_element
+          stack.pop
+        when "currency"
+          self.parent_element.currencies << self.current_element
+          stack.pop
+        when "category"
+          self.parent_element.categories << self.current_element
+          stack.pop
+        when "option"
+          self.parent_element.delivery_options << self.current_element
+          stack.pop
+        when "offer"
+          @consumer.call self.current_element
+          stack.pop
+        end
+
+        send "end_#{ name }"
+        path.pop
       end
+    # rescue
+    #   require 'pry'
+    #   binding.pry
+    end
 
-      send underscore("end_#{ name }")
-      path.pop
+    def underscore(string)
+      @underscore_cache ||= {}
+      @underscore_cache[string] ||= begin
+        v = string.to_s
+        v.gsub!(/([A-Z]+)([A-Z][a-z])/,'\1_\2')
+        v.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
+        v.downcase!
+        v.tr("-", "_")
+      end
     end
 
     def attr(name, value)
       debug " #{ name } : #{ value }"
-      self.current_element[name] = value if current_element
+      self.current_element[name] = value if current_element && current_element.respond_to?("#{name}=")
     end
 
     def text(value)
       debug " text : #{ value }"
-      self.current_element[underscore(path.last)] = value
+
+      case
+      when path.last == "barcode"
+        self.current_element.barcodes << value
+      when path.last == "param"
+        self.current_element.value = value
+      else
+        self.current_element[underscore(path.last)] = value unless undefined?
+      end
+    rescue
+      require "pry"
+      binding.pry
     end
 
     alias_method :cdata, :text
@@ -668,11 +837,6 @@ module YandexML
 
     def debug(message)
       @logger.debug (" " * path.size) << message
-    end
-
-    def underscore(string)
-      @underscore_cache ||= {}
-      @underscore_cache[string] ||= string.to_s.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').gsub(/([a-z\d])([A-Z])/,'\1_\2').tr("-", "_").downcase
     end
   end
 end

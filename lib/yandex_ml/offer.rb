@@ -8,13 +8,13 @@ module YandexML
     attribute :bid, String
     attribute :cbid, String
     attribute :available, String
-    attribute :url, YandexML::URL
+    attribute :url, String
     attribute :price, String
     attribute :oldprice, String
     attribute :currency_id, String
     attribute :category_id, Integer
     attribute :market_category, String
-    attribute :picture, YandexML::URL
+    attribute :picture, String
     attribute :store, Boolean # 'true', 'false'
     attribute :pickup, Boolean # 'true', 'false'
     attribute :delivery, Boolean # 'true', 'false'
@@ -37,8 +37,8 @@ module YandexML
     attribute :series, String
     attribute :year, String
     attribute :isbn, String
-    attribute :volume, String
     attribute :part, String
+    attribute :volume, String
     attribute :language, String
     attribute :binding, String
     attribute :page_extent, String

@@ -12,7 +12,7 @@ module YandexML
     attribute :agency, String
     attribute :email, Set[String]
     attribute :currencies, Set[YandexML::Currency]
-    attribute :categories, Set[YandexML::Category]
+    attribute :categories, YandexML::Tree, default: ->(*){ YandexML::Tree.new }, lazy: true
     attribute :store, String
     attribute :pickup, String
     attribute :delivery, String
@@ -21,5 +21,6 @@ module YandexML
     attribute :adult, String
     attribute :cpa, String
     attribute :fee, String
+    attribute :delivery_options, Set[DeliveryOption]
   end
 end
