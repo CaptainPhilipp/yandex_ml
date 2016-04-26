@@ -11,5 +11,13 @@ module YandexML
       parser = YandexML::Parser.new(@logger) { |element| black.call element }
       Ox.sax_parse parser, @io.tap(&:rewind)
     end
+
+    def shop
+      lazy.detect { |element| element.is_a? YandexML::Shop }
+    end
+
+    def offers
+      lazy.select { |element| element.is_a? YandexML::Offer }
+    end
   end
 end

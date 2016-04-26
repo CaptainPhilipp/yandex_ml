@@ -2,21 +2,15 @@ require 'spec_helper'
 require 'open-uri'
 
 describe YandexML::File do
-  [
-    File.expand_path("files/yandex.xml", File.dirname(__FILE__)),
-  ].each do |path|
+  [File.expand_path("files/yandex.xml", File.dirname(__FILE__))].each do |path|
     context "parse #{ path }" do
       let(:file) { YandexML::File.new open(path), Logger.new(STDOUT).tap{|l| l.level = (ENV["DEBUG"] ? Logger::DEBUG : Logger::ERROR) } }
 
-      it { expect{ file.lazy.take(500).each(&:attributes) }.to_not raise_error }
-
       it do
-        yml_shop = file.lazy.detect{ |element| element.is_a?(YandexML::Shop) }
-        yml_shop.categories.valid?
-
-        file.lazy.select{ |element| element.is_a?(YandexML::Offer) }.each_with_index do |offer, index|
-          category_ids = yml_shop.categories.path_to(offer.category_id)
-        end
+        expect{ file.each(&:attributes) }.to_not raise_error
+        yml_shop = file.shop
+        expect(yml_shop.categories.valid?).to eq(true)
+        file.offers.each { |offer| expect{ yml_shop.categories.path_to(offer.category_id) }.to_not raise_error }
       end
     end
   end
