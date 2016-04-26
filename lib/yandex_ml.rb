@@ -3,7 +3,6 @@ require "ox"
 require "virtus"
 require "active_model"
 require "logger"
-require "postrank-uri"
 
 require "yandex_ml/version"
 require "yandex_ml/element"

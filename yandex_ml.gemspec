@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.bindir        = "bin"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
 
-  spec.add_runtime_dependency "nokogiri", ">= 1.6"
+  spec.add_runtime_dependency "ox", ">= 2.0"
   spec.add_runtime_dependency "aasm", ">= 4.0"
   spec.add_runtime_dependency "virtus", ">= 1.0"
   spec.add_runtime_dependency "activemodel"
