@@ -12,7 +12,7 @@ module YandexML
     attribute :price, String
     attribute :oldprice, String
     attribute :currency_id, String
-    attribute :category_id, Integer
+    attribute :category_id, CategoryID
     attribute :market_category, String
     attribute :picture, String
     attribute :store, Boolean # 'true', 'false'

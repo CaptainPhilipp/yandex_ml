@@ -21,6 +21,10 @@ module YandexML
       @collection.values
     end
 
+    def keys
+      @collection.keys
+    end
+
     def <<(node)
       @collection[node.id] = node
     end

@@ -8,5 +8,8 @@ module YandexML
 
     alias_method :category, :name
     alias_method :category=, :name=
+
+    alias_method :parentId, :parent_id
+    alias_method :parentId=, :parent_id=
   end
 end

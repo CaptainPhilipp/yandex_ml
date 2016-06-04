@@ -727,6 +727,8 @@ module YandexML
           self.current_element = YandexML::Category.new
         when "offer"
           self.current_element = YandexML::Offer.new
+        when "category_id"
+          self.current_element = YandexML::CategoryID.new
         when "param"
           self.current_element = YandexML::Param.new
         when "option"
@@ -771,6 +773,9 @@ module YandexML
         when "offer"
           @enumerator << self.current_element
           stack.pop
+        when "category_id"
+          self.parent_element.category_id = self.current_element
+          stack.pop
         end
 
         send "end_#{ name }"
@@ -797,13 +802,17 @@ module YandexML
       self.current_element[name] = value if current_element && current_element.respond_to?("#{name}=")
     end
 
-    def text(value)
-      debug " text : #{ value }"
+    def text(str)
+      debug " text : #{ str }"
+
+      value = str.encode("UTF-8")
 
       case
       when path.last == "barcode"
         self.current_element.barcodes << value
       when path.last == "param"
+        self.current_element.value = value
+      when path.last == "category_id"
         self.current_element.value = value
       else
         self.current_element[underscore(path.last)] = value unless undefined?
