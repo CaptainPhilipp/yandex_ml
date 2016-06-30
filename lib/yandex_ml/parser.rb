@@ -767,14 +767,17 @@ module YandexML
         when "category"
           self.parent_element.categories << self.current_element
           stack.pop
-        when "option"
-          self.parent_element.delivery_options << self.current_element
-          stack.pop
         when "offer"
           @enumerator << self.current_element
           stack.pop
         when "category_id"
           self.parent_element.category_id = self.current_element
+          stack.pop
+        when "param"
+          self.parent_element.params << self.current_element
+          stack.pop
+        when "option"
+          self.parent_element.delivery_options << self.current_element
           stack.pop
         end
 
