@@ -784,9 +784,6 @@ module YandexML
         send "end_#{ name }"
         path.pop
       end
-    # rescue
-    #   require 'pry'
-    #   binding.pry
     end
 
     def underscore(string)
