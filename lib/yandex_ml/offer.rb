@@ -9,7 +9,7 @@ module YandexML
     attribute :cbid, String
     attribute :available, String
     attribute :url, String
-    attribute :price, String
+    attribute :price, Float
     attribute :oldprice, String
     attribute :currency_id, String
     attribute :category_id, CategoryID

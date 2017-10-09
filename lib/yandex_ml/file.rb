@@ -15,6 +15,10 @@ module YandexML
       elements.lazy.detect { |element| element.is_a? YandexML::Shop }
     end
 
+    def categories
+      elements.lazy.select { |element| element.is_a? YandexML::Category }
+    end
+
     def offers
       elements.lazy.select { |element| element.is_a? YandexML::Offer }
     end

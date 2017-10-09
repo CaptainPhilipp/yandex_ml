@@ -743,9 +743,6 @@ module YandexML
       end
 
       path.push name
-    rescue
-      require 'pry'
-      binding.pry
     end
 
     def end_element(event_name)
@@ -765,6 +762,7 @@ module YandexML
           self.parent_element.currencies << self.current_element
           stack.pop
         when "category"
+          @enumerator <<  self.current_element
           self.parent_element.categories << self.current_element
           stack.pop
         when "offer"
@@ -805,7 +803,7 @@ module YandexML
     def text(str)
       debug " text : #{ str }"
 
-      value = str.encode("UTF-8")
+      value = str.encode("UTF-8",:invalid => :replace, :undef => :replace, :replace => "?")
 
       case
       when path.last == "barcode"
@@ -817,9 +815,6 @@ module YandexML
       else
         self.current_element[underscore(path.last)] = value unless undefined?
       end
-    rescue
-      require "pry"
-      binding.pry
     end
 
     alias_method :cdata, :text
